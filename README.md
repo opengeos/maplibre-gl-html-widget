@@ -5,6 +5,7 @@ A flexible plugin for [MapLibre GL JS](https://maplibre.org/) that allows you to
 ## Features
 
 - Add any HTML content to your map as a widget
+- **Matplotlib-style colorbar widget** with support for colormaps, vmin/vmax, title, and more
 - Position widgets in any corner of the map
 - Optional collapsible/expandable functionality with a toggle button
 - Customizable styling
@@ -192,13 +193,109 @@ The plugin comes with default styles, but you can customize them by targeting th
 }
 ```
 
+## Colorbar Widget
+
+The package includes a specialized `ColorbarWidget` for creating matplotlib-style colorbars, perfect for visualizing data ranges on your map.
+
+### Basic Colorbar Example
+
+```javascript
+import { ColorbarWidget } from 'maplibre-gl-html-widget';
+import 'maplibre-gl-html-widget/src/colorbar-widget.css';
+
+const colorbar = new ColorbarWidget({
+    vmin: 0,
+    vmax: 100,
+    cmap: 'viridis',
+    title: 'Temperature',
+    label: '°C',
+    orientation: 'vertical',
+    position: 'bottom-right',
+    collapsible: true
+});
+
+map.addControl(colorbar);
+```
+
+### Colorbar Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `vmin` | `number` | `0` | Minimum value |
+| `vmax` | `number` | `100` | Maximum value |
+| `cmap` | `string\|Array` | `'viridis'` | Colormap name or array of hex colors |
+| `title` | `string` | `''` | Colorbar title |
+| `label` | `string` | `''` | Label text (e.g., units) |
+| `orientation` | `string` | `'vertical'` | `'vertical'` or `'horizontal'` |
+| `width` | `number` | `30` | Width in pixels (vertical) or height (horizontal) |
+| `height` | `number` | `200` | Height in pixels (vertical) or width (horizontal) |
+| `tickCount` | `number` | `5` | Number of tick marks |
+| `decimals` | `number` | `1` | Decimal places for tick labels |
+| `position` | `string` | `'bottom-right'` | Widget position |
+| `collapsible` | `boolean` | `false` | Enable collapse/expand |
+| `collapsed` | `boolean` | `false` | Initial collapsed state |
+
+### Built-in Colormaps
+
+The ColorbarWidget includes these matplotlib-inspired colormaps:
+
+- **Sequential**: `viridis`, `plasma`, `inferno`, `magma`, `turbo`, `greens`, `blues`, `reds`, `grays`
+- **Diverging**: `coolwarm`, `rdbu`, `rdylgn`, `spectral`
+- **Miscellaneous**: `jet`, `rainbow`
+
+### Custom Colors
+
+```javascript
+const colorbar = new ColorbarWidget({
+    vmin: 0,
+    vmax: 50,
+    cmap: ['#blue', '#cyan', '#yellow', '#red'],  // Custom color array
+    title: 'Custom Scale'
+});
+```
+
+### Colorbar Methods
+
+```javascript
+// Update colorbar properties dynamically
+colorbar.update({
+    vmin: -10,
+    vmax: 40,
+    cmap: 'plasma',
+    title: 'Updated Temperature'
+});
+
+// Get available colormap names
+const colormaps = colorbar.getColormapNames();
+
+// Show/hide/toggle
+colorbar.show();
+colorbar.hide();
+colorbar.toggle();
+```
+
+### Horizontal Colorbar
+
+```javascript
+const horizontalBar = new ColorbarWidget({
+    vmin: 0,
+    vmax: 500,
+    cmap: 'blues',
+    title: 'Precipitation',
+    label: 'mm/year',
+    orientation: 'horizontal',
+    height: 200,  // width when horizontal
+    width: 30,    // height when horizontal
+    position: 'bottom-left'
+});
+```
+
 ## Examples
 
 Check out the `examples/` directory for more complete examples:
 
-- Basic widget
-- Collapsible legend
-- Interactive controls
+- `index.html` - Basic widgets, collapsible legends, interactive controls
+- `colorbar-example.html` - Colorbar demonstrations with interactive controls
 - Dynamic content updates
 
 ## Browser Support

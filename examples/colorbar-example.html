@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Colorbar Widget Examples - MapLibre GL</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@5.0.0/dist/maplibre-gl.css"
+    />
+    <link rel="stylesheet" href="../src/colorbar-widget.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+      /* Control panel styling */
+      .control-panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: white;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-width: 300px;
+      }
+
+      .control-panel h3 {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: #333;
+      }
+
+      .control-group {
+        margin-bottom: 12px;
+      }
+
+      .control-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #555;
+      }
+
+      .control-group select,
+      .control-group input {
+        width: 100%;
+        padding: 6px 8px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-sizing: border-box;
+      }
+
+      .control-group button {
+        width: 100%;
+        padding: 8px;
+        font-size: 12px;
+        background: #0078d4;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-top: 4px;
+      }
+
+      .control-group button:hover {
+        background: #005a9e;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 8px;
+      }
+
+      .button-group button {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="control-panel">
+      <h3>Colorbar Controls</h3>
+
+      <div class="control-group">
+        <label>Colormap</label>
+        <select id="cmap-select">
+          <option value="viridis">Viridis</option>
+          <option value="plasma">Plasma</option>
+          <option value="inferno">Inferno</option>
+          <option value="magma">Magma</option>
+          <option value="turbo">Turbo</option>
+          <option value="jet">Jet</option>
+          <option value="rainbow">Rainbow</option>
+          <option value="coolwarm">Cool Warm</option>
+          <option value="rdylgn">RdYlGn</option>
+          <option value="spectral">Spectral</option>
+          <option value="rdbu">RdBu</option>
+          <option value="greens">Greens</option>
+          <option value="blues">Blues</option>
+          <option value="reds">Reds</option>
+          <option value="grays">Grays</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Min Value (vmin)</label>
+        <input type="number" id="vmin-input" value="0" step="1" />
+      </div>
+
+      <div class="control-group">
+        <label>Max Value (vmax)</label>
+        <input type="number" id="vmax-input" value="100" step="1" />
+      </div>
+
+      <div class="control-group">
+        <label>Title</label>
+        <input type="text" id="title-input" value="Temperature (°C)" />
+      </div>
+
+      <div class="control-group">
+        <label>Label (optional)</label>
+        <input type="text" id="label-input" value="" placeholder="Optional additional text" />
+      </div>
+
+      <div class="control-group">
+        <label>Orientation</label>
+        <select id="orientation-select">
+          <option value="vertical">Vertical</option>
+          <option value="horizontal">Horizontal</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Tick Count</label>
+        <input type="number" id="tick-count-input" value="5" min="2" max="10" />
+      </div>
+
+      <div class="control-group">
+        <label>Decimals</label>
+        <input type="number" id="decimals-input" value="1" min="0" max="4" />
+      </div>
+
+      <div class="control-group">
+        <button id="update-btn">Update Colorbar</button>
+      </div>
+
+      <div class="control-group">
+        <div class="button-group">
+          <button id="toggle-btn">Toggle</button>
+          <button id="show-btn">Show</button>
+          <button id="hide-btn">Hide</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@5.0.0/dist/maplibre-gl.js"></script>
+    <script src="../src/colorbar-widget.js"></script>
+    <script>
+      // Initialize the map
+      const map = new maplibregl.Map({
+        container: "map",
+        style: {
+          version: 8,
+          sources: {
+            "osm-tiles": {
+              type: "raster",
+              tiles: [
+                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              ],
+              tileSize: 256,
+              attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            },
+          },
+          layers: [
+            {
+              id: "osm-tiles-layer",
+              type: "raster",
+              source: "osm-tiles",
+              minzoom: 0,
+              maxzoom: 19,
+            },
+          ],
+        },
+        center: [0, 20],
+        zoom: 2,
+      });
+
+      // Create multiple colorbar examples
+
+      // Example 1: Temperature colorbar (bottom-right, vertical)
+      const tempColorbar = new ColorbarWidget({
+        vmin: 0,
+        vmax: 100,
+        cmap: "viridis",
+        title: "Temperature (°C)",
+        orientation: "vertical",
+        width: 30,
+        height: 200,
+        tickCount: 5,
+        decimals: 1,
+        position: "bottom-right",
+        collapsible: true,
+        collapsed: false,
+      });
+
+      // Example 2: Elevation colorbar (top-right, vertical)
+      const elevColorbar = new ColorbarWidget({
+        vmin: -100,
+        vmax: 5000,
+        cmap: "terrain",
+        title: "Elevation (m)",
+        orientation: "vertical",
+        width: 30,
+        height: 180,
+        tickCount: 6,
+        decimals: 0,
+        position: "top-right",
+        collapsible: true,
+        collapsed: true,
+      });
+
+      // Example 3: Precipitation colorbar (bottom-left, horizontal)
+      const precipColorbar = new ColorbarWidget({
+        vmin: 0,
+        vmax: 500,
+        cmap: "blues",
+        title: "Precipitation (mm/year)",
+        orientation: "horizontal",
+        width: 30,
+        height: 200,
+        tickCount: 6,
+        decimals: 0,
+        position: "bottom-left",
+        collapsible: true,
+        collapsed: true,
+      });
+
+      // Add colorbars to map
+      map.addControl(tempColorbar);
+      map.addControl(elevColorbar);
+      map.addControl(precipColorbar);
+
+      // Set up control panel functionality
+      document.getElementById("update-btn").addEventListener("click", () => {
+        const vmin = parseFloat(document.getElementById("vmin-input").value);
+        const vmax = parseFloat(document.getElementById("vmax-input").value);
+        const cmap = document.getElementById("cmap-select").value;
+        const title = document.getElementById("title-input").value;
+        const label = document.getElementById("label-input").value;
+        const orientation = document.getElementById("orientation-select").value;
+        const tickCount = parseInt(
+          document.getElementById("tick-count-input").value
+        );
+        const decimals = parseInt(
+          document.getElementById("decimals-input").value
+        );
+
+        tempColorbar.update({
+          vmin: vmin,
+          vmax: vmax,
+          cmap: cmap,
+          title: title,
+          label: label,
+          orientation: orientation,
+          tickCount: tickCount,
+          decimals: decimals,
+        });
+      });
+
+      document.getElementById("toggle-btn").addEventListener("click", () => {
+        tempColorbar.toggle();
+      });
+
+      document.getElementById("show-btn").addEventListener("click", () => {
+        tempColorbar.show();
+      });
+
+      document.getElementById("hide-btn").addEventListener("click", () => {
+        tempColorbar.hide();
+      });
+
+      // Log available colormaps
+      console.log(
+        "Available colormaps:",
+        tempColorbar.getColormapNames().join(", ")
+      );
+
+      // Example: Create custom colorbar with custom colors
+      const customColors = [
+        "#f7fbff",
+        "#deebf7",
+        "#c6dbef",
+        "#9ecae1",
+        "#6baed6",
+        "#4292c6",
+        "#2171b5",
+        "#08519c",
+        "#08306b",
+      ];
+
+      console.log("To create a colorbar with custom colors:");
+      console.log(`
+new ColorbarWidget({
+  vmin: 0,
+  vmax: 100,
+  cmap: ${JSON.stringify(customColors)},
+  title: 'Custom Scale',
+  position: 'top-left'
+})
+      `);
+    </script>
+  </body>
+</html>
