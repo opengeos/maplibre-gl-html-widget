@@ -134,7 +134,12 @@
 
       <div class="control-group">
         <label>Label (optional)</label>
-        <input type="text" id="label-input" value="" placeholder="Optional additional text" />
+        <input
+          type="text"
+          id="label-input"
+          value=""
+          placeholder="Optional additional text"
+        />
       </div>
 
       <div class="control-group">
@@ -219,6 +224,7 @@
         position: "bottom-right",
         collapsible: true,
         collapsed: false,
+        toggleIcon: "🌡️", // Thermometer icon
       });
 
       // Example 2: Elevation colorbar (top-right, vertical)
@@ -235,6 +241,7 @@
         position: "top-right",
         collapsible: true,
         collapsed: true,
+        toggleIcon: "⛰️", // Mountain icon
       });
 
       // Example 3: Precipitation colorbar (bottom-left, horizontal)
@@ -251,12 +258,39 @@
         position: "bottom-left",
         collapsible: true,
         collapsed: true,
+        toggleIcon: "💧", // Water droplet icon
+      });
+
+      // Example 4: Custom colormap (top-left, vertical)
+      const customColors = [
+        "#440154", // Dark purple
+        "#3b528b", // Blue
+        "#21918c", // Cyan
+        "#5ec962", // Green
+        "#fde724", // Yellow
+      ];
+
+      const customColorbar = new ColorbarWidget({
+        vmin: 0,
+        vmax: 50,
+        cmap: customColors, // Custom color array
+        title: "Wind Speed (m/s)",
+        orientation: "vertical",
+        width: 30,
+        height: 180,
+        tickCount: 6,
+        decimals: 0,
+        position: "top-left",
+        collapsible: true,
+        collapsed: true,
+        toggleIcon: "💨", // Wind icon
       });
 
       // Add colorbars to map
       map.addControl(tempColorbar);
       map.addControl(elevColorbar);
       map.addControl(precipColorbar);
+      map.addControl(customColorbar);
 
       // Set up control panel functionality
       document.getElementById("update-btn").addEventListener("click", () => {
@@ -297,35 +331,18 @@
         tempColorbar.hide();
       });
 
-      // Log available colormaps
+      // Log available colormaps for reference
       console.log(
         "Available colormaps:",
         tempColorbar.getColormapNames().join(", ")
       );
 
-      // Example: Create custom colorbar with custom colors
-      const customColors = [
-        "#f7fbff",
-        "#deebf7",
-        "#c6dbef",
-        "#9ecae1",
-        "#6baed6",
-        "#4292c6",
-        "#2171b5",
-        "#08519c",
-        "#08306b",
-      ];
-
-      console.log("To create a colorbar with custom colors:");
-      console.log(`
-new ColorbarWidget({
-  vmin: 0,
-  vmax: 100,
-  cmap: ${JSON.stringify(customColors)},
-  title: 'Custom Scale',
-  position: 'top-left'
-})
-      `);
+      // Log widget controls
+      console.log("Colorbar controls available:");
+      console.log("- tempColorbar: Temperature (bottom-right)");
+      console.log("- elevColorbar: Elevation (top-right)");
+      console.log("- precipColorbar: Precipitation (bottom-left)");
+      console.log("- customColorbar: Wind Speed with custom colors (top-left)");
     </script>
   </body>
 </html>
