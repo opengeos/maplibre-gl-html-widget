@@ -1,6 +1,6 @@
 {
   "name": "maplibre-gl-html-widget",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A MapLibre GL JS plugin for adding HTML widgets to the map with optional show/hide toggle",
   "main": "src/maplibre-gl-html-widget.js",
   "keywords": [
@@ -10,15 +10,22 @@
     "html",
     "plugin"
   ],
-  "author": "",
+  "author": "Qiusheng Wu <giswqs@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "maplibre-gl": "^3.0.0 || ^4.0.0"
+    "maplibre-gl": "^5.0.0"
+  },
+  "devDependencies": {
+    "maplibre-gl": "^5.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/maplibre-gl-html-widget.git"
+    "url": "https://github.com/opengeos/maplibre-gl-html-widget.git"
   },
+  "bugs": {
+    "url": "https://github.com/opengeos/maplibre-gl-html-widget/issues"
+  },
+  "homepage": "https://github.com/opengeos/maplibre-gl-html-widget",
   "files": [
     "src/",
     "README.md",
