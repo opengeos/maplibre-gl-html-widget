@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MapLibre GL HTML Widget - Examples</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.css"
+    />
+    <link rel="stylesheet" href="../src/maplibre-gl-html-widget.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+      /* Custom styling for legend widget */
+      .legend-widget {
+        min-width: 200px;
+      }
+      .legend-widget h3 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #0078d4;
+        padding-bottom: 8px;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 3px;
+        margin-right: 10px;
+      }
+
+      /* Custom styling for info widget */
+      .info-widget {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+      .info-widget .maplibregl-ctrl-html-widget-content {
+        color: white;
+      }
+      .info-widget h3 {
+        margin-top: 0;
+        color: white;
+      }
+      .info-widget a {
+        color: #ffeb3b;
+      }
+
+      /* Stats widget styling */
+      .stats-widget {
+        font-family: "Courier New", monospace;
+      }
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .stat-label {
+        font-weight: bold;
+        color: #666;
+      }
+      .stat-value {
+        color: #0078d4;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.js"></script>
+    <script src="../src/maplibre-gl-html-widget.js"></script>
+    <script>
+      // Initialize the map
+      const map = new maplibregl.Map({
+        container: "map",
+        style: {
+          version: 8,
+          sources: {
+            "osm-tiles": {
+              type: "raster",
+              tiles: [
+                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              ],
+              tileSize: 256,
+              attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            },
+          },
+          layers: [
+            {
+              id: "osm-tiles-layer",
+              type: "raster",
+              source: "osm-tiles",
+              minzoom: 0,
+              maxzoom: 19,
+            },
+          ],
+        },
+        center: [-98.5795, 39.8283],
+        zoom: 2,
+      });
+
+      // Example 1: Simple Info Widget (Top Left, Always Visible)
+      const infoWidget = new HtmlWidget({
+        content: `
+                <h3>Welcome!</h3>
+                <p>This demo showcases the MapLibre GL HTML Widget plugin.</p>
+                <p>Try collapsing and expanding the other widgets!</p>
+            `,
+        position: "top-left",
+        className: "info-widget",
+        maxWidth: 250,
+      });
+
+      // Example 2: Collapsible Legend (Top Right)
+      const legendWidget = new HtmlWidget({
+        content: `
+                <div class="legend-widget">
+                    <h3>Map Legend</h3>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff4444;"></div>
+                        <span>High Priority</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffaa00;"></div>
+                        <span>Medium Priority</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #44ff44;"></div>
+                        <span>Low Priority</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4444ff;"></div>
+                        <span>Completed</span>
+                    </div>
+                </div>
+            `,
+        position: "top-right",
+        collapsible: true,
+        collapsed: false,
+        toggleIcon: "📊",
+      });
+
+      // Example 3: Interactive Controls Widget (Bottom Left)
+      const controlsElement = document.createElement("div");
+      controlsElement.innerHTML = `
+            <h3>Map Controls</h3>
+            <button id="resetBtn" style="
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 8px;
+                background: #0078d4;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            ">Reset View</button>
+            <button id="randomBtn" style="
+                width: 100%;
+                padding: 8px;
+                background: #28a745;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            ">Random Location</button>
+        `;
+
+      const controlsWidget = new HtmlWidget({
+        content: controlsElement,
+        position: "bottom-left",
+        collapsible: true,
+        collapsed: false,
+        toggleIcon: "🎮",
+      });
+
+      // Example 4: Dynamic Stats Widget (Bottom Right)
+      const statsWidget = new HtmlWidget({
+        content: `
+                <div class="stats-widget">
+                    <h3>Map Stats</h3>
+                    <div id="stats-content">
+                        <div class="stat-item">
+                            <span class="stat-label">Zoom:</span>
+                            <span class="stat-value" id="zoom-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Center:</span>
+                            <span class="stat-value" id="center-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Bearing:</span>
+                            <span class="stat-value" id="bearing-value">-</span>
+                        </div>
+                    </div>
+                </div>
+            `,
+        position: "bottom-right",
+        collapsible: true,
+        collapsed: false,
+        toggleIcon: "📈",
+        maxWidth: 250,
+      });
+
+      // Add all widgets to the map
+      map.addControl(infoWidget);
+      map.addControl(legendWidget);
+      map.addControl(controlsWidget);
+      map.addControl(statsWidget);
+
+      // Set up interactive controls
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        map.flyTo({
+          center: [-98.5795, 39.8283],
+          zoom: 3,
+          bearing: 0,
+          pitch: 0,
+        });
+      });
+
+      document.getElementById("randomBtn").addEventListener("click", () => {
+        const randomLng = Math.random() * 360 - 180;
+        const randomLat = Math.random() * 160 - 80;
+        const randomZoom = Math.random() * 8 + 2;
+
+        map.flyTo({
+          center: [randomLng, randomLat],
+          zoom: randomZoom,
+        });
+      });
+
+      // Update stats dynamically
+      function updateStats() {
+        const zoom = map.getZoom().toFixed(2);
+        const center = map.getCenter();
+        const bearing = map.getBearing().toFixed(1);
+
+        document.getElementById("zoom-value").textContent = zoom;
+        document.getElementById(
+          "center-value"
+        ).textContent = `${center.lng.toFixed(4)}, ${center.lat.toFixed(4)}`;
+        document.getElementById("bearing-value").textContent = bearing + "°";
+      }
+
+      map.on("move", updateStats);
+      map.on("load", updateStats);
+
+      // Example of programmatic control
+      console.log("Widget controls available:");
+      console.log("- legendWidget.toggle() - Toggle legend visibility");
+      console.log("- legendWidget.hide() - Hide legend");
+      console.log("- legendWidget.show() - Show legend");
+      console.log("- statsWidget.setContent(html) - Update stats content");
+    </script>
+  </body>
+</html>
